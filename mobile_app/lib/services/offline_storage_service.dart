@@ -1,73 +1,49 @@
-import 'dart:convert';
+﻿import 'dart:convert';
+import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
-
-class OfflineDocket {
-  final String id;
-  final String retailerName;
-  final String state;
-  final String district;
-  final double shelfPrice;
-  final String imagePath;
-  final String createdAt;
-  final bool isSynced;
-
-  OfflineDocket({
-    required this.id,
-    required this.retailerName,
-    required this.state,
-    required this.district,
-    required this.shelfPrice,
-    required this.imagePath,
-    required this.createdAt,
-    this.isSynced = false,
-  });
-
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'retailer_name': retailerName,
-      'state': state,
-      'district': district,
-      'shelf_price': shelfPrice,
-      'image_path': imagePath,
-      'created_at': createdAt,
-      'is_synced': isSynced,
-    };
-  }
-
-  factory OfflineDocket.fromMap(Map<String, dynamic> map) {
-    return OfflineDocket(
-      id: map['id'],
-      retailerName: map['retailer_name'],
-      state: map['state'],
-      district: map['district'],
-      shelfPrice: (map['shelf_price'] as num).toDouble(),
-      imagePath: map['image_path'],
-      createdAt: map['created_at'],
-      isSynced: map['is_synced'] ?? false,
-    );
-  }
-}
+import 'api_service.dart';
 
 class OfflineStorageService {
-  static const String _key = 'offline_inspection_dockets';
+  static const String _key = 'offline_inspection_queue';
 
-  static Future<List<OfflineDocket>> getQueuedDockets() async {
+  static Future<List<Map<String, dynamic>>> getPendingInspections() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getStringList(_key) ?? [];
-    return raw.map((item) => OfflineDocket.fromMap(jsonDecode(item))).toList();
+    return raw.map((item) => jsonDecode(item) as Map<String, dynamic>).toList();
   }
 
-  static Future<void> saveDocket(OfflineDocket docket) async {
+  static Future<void> saveOfflineInspection(String imagePath, String district, String state) async {
     final prefs = await SharedPreferences.getInstance();
-    final dockets = await getQueuedDockets();
-    dockets.add(docket);
-    final raw = dockets.map((d) => jsonEncode(d.toMap())).toList();
+    final list = await getPendingInspections();
+    list.add({
+      'id': 'offline-${DateTime.now().millisecondsSinceEpoch}',
+      'image_path': imagePath,
+      'district': district,
+      'state': state,
+      'created_at': DateTime.now().toIso8601String(),
+    });
+    final raw = list.map((item) => jsonEncode(item)).toList();
     await prefs.setStringList(_key, raw);
   }
 
-  static Future<void> clearSyncedDockets() async {
+  static Future<int> syncAllPending() async {
+    final items = await getPendingInspections();
+    int count = 0;
+    for (final item in items) {
+      try {
+        final file = File(item['image_path']);
+        if (await file.exists()) {
+          await ApiService.submitInspection(
+            imageFile: file,
+            district: item['district'] ?? 'Mumbai Suburban',
+            state: item['state'] ?? 'Maharashtra',
+          );
+          count++;
+        }
+      } catch (_) {}
+    }
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_key);
+    return count;
   }
 }
