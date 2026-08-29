@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # ===========================================================================
+  # PostgreSQL 16 Enterprise Database
+  # ===========================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: legalmetrology_db_prod
+    restart: always
+    environment:
+      POSTGRES_USER: legalmetrology_user
+      POSTGRES_PASSWORD: SecretProductionDbPassword_2026!
+      POSTGRES_DB: legal_metrology_db
+    volumes:
+      - pgdata_prod:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U legalmetrology_user -d legal_metrology_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - metrology_network
+
+  # ===========================================================================
+  # FastAPI AI OCR & Adjudication Backend
+  # ===========================================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: legalmetrology_backend_prod
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://legalmetrology_user:SecretProductionDbPassword_2026!@postgres:5432/legal_metrology_db
+      SECRET_KEY: SIH2026_PRODUCTION_CRYPTOGRAPHIC_SIGNING_KEY_LEGAL_METROLOGY
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 1440
+      BACKEND_CORS_ORIGINS: '["http://localhost", "http://localhost:5174", "http://127.0.0.1:8001"]'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./backend/static:/app/static
+    networks:
+      - metrology_network
+
+  # ===========================================================================
+  # React + Vite Production Frontend Nginx Container
+  # ===========================================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: legalmetrology_frontend_prod
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - metrology_network
+
+volumes:
+  pgdata_prod:
+
+networks:
+  metrology_network:
+    driver: bridge

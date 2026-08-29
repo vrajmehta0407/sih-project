@@ -1,0 +1,5174 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Legal Metrology Compliance Scanner",
+    "description": "Backend API for Legal Metrology Compliance Scanner (Smart India Hackathon 2026)",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "System Health"
+        ],
+        "summary": "System Health & Readiness Probe",
+        "operationId": "health_check_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "Authentication & RBAC"
+        ],
+        "summary": "Inspector & Admin Login (OAuth2 Form)",
+        "description": "OAuth2 compatible token login, get an access token for future requests.",
+        "operationId": "login_access_token_api_v1_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_login_access_token_api_v1_auth_login_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login/json": {
+      "post": {
+        "tags": [
+          "Authentication & RBAC"
+        ],
+        "summary": "JSON Body Login (for Mobile / Web Client)",
+        "operationId": "login_json_api_v1_auth_login_json_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLogin"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": [
+          "Authentication & RBAC"
+        ],
+        "summary": "Get Current Authenticated User",
+        "operationId": "get_current_user_profile_api_v1_auth_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEnvelope_UserResponse_"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth/register-inspector": {
+      "post": {
+        "tags": [
+          "Authentication & RBAC"
+        ],
+        "summary": "Register New Inspector (Admin only)",
+        "operationId": "register_inspector_api_v1_auth_register_inspector_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEnvelope_UserResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/users/": {
+      "get": {
+        "tags": [
+          "Inspectors & Users"
+        ],
+        "summary": "List All Users (Admin only)",
+        "operationId": "list_users_api_v1_users__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "role",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by role: inspector, admin, supervisor",
+              "title": "Role"
+            },
+            "description": "Filter by role: inspector, admin, supervisor"
+          },
+          {
+            "name": "district",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by district",
+              "title": "District"
+            },
+            "description": "Filter by district"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Search by name, email, or badge number",
+              "title": "Search"
+            },
+            "description": "Search by name, email, or badge number"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEnvelope_PaginatedResponse_UserResponse__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/{user_id}": {
+      "get": {
+        "tags": [
+          "Inspectors & Users"
+        ],
+        "summary": "Get User By ID",
+        "operationId": "get_user_by_id_api_v1_users__user_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEnvelope_UserResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Inspectors & Users"
+        ],
+        "summary": "Update User (Admin only)",
+        "operationId": "update_user_api_v1_users__user_id__put",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEnvelope_UserResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/rules/versions": {
+      "get": {
+        "tags": [
+          "Legal Metrology Rules"
+        ],
+        "summary": "List All Rule Versions",
+        "operationId": "list_rule_versions_api_v1_rules_versions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEnvelope_List_RuleVersionResponse__"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/rules/active": {
+      "get": {
+        "tags": [
+          "Legal Metrology Rules"
+        ],
+        "summary": "Get Currently Active Rule Version & Rules",
+        "operationId": "get_active_rule_version_api_v1_rules_active_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEnvelope_RuleVersionResponse_"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/rules/": {
+      "get": {
+        "tags": [
+          "Legal Metrology Rules"
+        ],
+        "summary": "List Rules (with optional state override filter)",
+        "operationId": "list_rules_api_v1_rules__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by Rule Version ID",
+              "title": "Version Id"
+            },
+            "description": "Filter by Rule Version ID"
+          },
+          {
+            "name": "field",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by validated field (e.g. mrp, net_quantity)",
+              "title": "Field"
+            },
+            "description": "Filter by validated field (e.g. mrp, net_quantity)"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter rules applying to a specific state",
+              "title": "State"
+            },
+            "description": "Filter rules applying to a specific state"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEnvelope_List_RuleResponse__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Legal Metrology Rules"
+        ],
+        "summary": "Create or Add New Rule (Admin only)",
+        "operationId": "create_rule_api_v1_rules__post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RuleCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEnvelope_RuleResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/inspections/batch-sync": {
+      "post": {
+        "tags": [
+          "Inspections & Image Preprocessing"
+        ],
+        "summary": "Batch Synchronize Offline Inspections",
+        "description": "Processes a batch queue of inspections recorded offline by field officers in low-connectivity areas. Performs idempotent synchronization, text extraction, and statutory compliance validation.",
+        "operationId": "batch_sync_inspections_api_v1_inspections_batch_sync_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchSyncRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchSyncResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/inspections/": {
+      "post": {
+        "tags": [
+          "Inspections & Image Preprocessing"
+        ],
+        "summary": "Create Inspection & Upload Label Images",
+        "description": "Upload 1\u20135 images of a product label (different sides: front/back/left/right/top). The OpenCV preprocessing pipeline will automatically run perspective correction, denoising, glare suppression, CLAHE contrast enhancement, and skew detection on each uploaded image. Returns full preprocessing metadata and image URLs.",
+        "operationId": "create_inspection_api_v1_inspections__post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_create_inspection_api_v1_inspections__post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InspectionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Inspections & Image Preprocessing"
+        ],
+        "summary": "List Inspections",
+        "description": "Paginated list of inspections. Inspectors see only their own; admins see all.",
+        "operationId": "list_inspections_api_v1_inspections__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "district",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by district",
+              "title": "District"
+            },
+            "description": "Filter by district"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by state",
+              "title": "State"
+            },
+            "description": "Filter by state"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by pipeline status",
+              "title": "Status"
+            },
+            "description": "Filter by pipeline status"
+          },
+          {
+            "name": "compliance_status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by compliance outcome",
+              "title": "Compliance Status"
+            },
+            "description": "Filter by compliance outcome"
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Pagination offset",
+              "default": 0,
+              "title": "Skip"
+            },
+            "description": "Pagination offset"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Results per page (max 100)",
+              "default": 20,
+              "title": "Limit"
+            },
+            "description": "Results per page (max 100)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InspectionListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/inspections/{inspection_id}": {
+      "get": {
+        "tags": [
+          "Inspections & Image Preprocessing"
+        ],
+        "summary": "Get Inspection Detail",
+        "description": "Full inspection record including per-side image URLs and preprocessing metadata.",
+        "operationId": "get_inspection_api_v1_inspections__inspection_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "inspection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Inspection Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InspectionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Inspections & Image Preprocessing"
+        ],
+        "summary": "Delete Inspection",
+        "description": "Permanently deletes inspection record and all raw/preprocessed image files. Admin only.",
+        "operationId": "delete_inspection_api_v1_inspections__inspection_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "inspection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Inspection Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/inspections/{inspection_id}/images": {
+      "post": {
+        "tags": [
+          "Inspections & Image Preprocessing"
+        ],
+        "summary": "Add Images to Existing Inspection",
+        "description": "Upload additional side images (e.g., back, top) to a previously created inspection. Existing images for the same side will be replaced. Preprocessing runs automatically.",
+        "operationId": "add_images_api_v1_inspections__inspection_id__images_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "inspection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Inspection Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_add_images_api_v1_inspections__inspection_id__images_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddImagesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/inspections/{inspection_id}/images/{side}": {
+      "get": {
+        "tags": [
+          "Inspections & Image Preprocessing"
+        ],
+        "summary": "Get Processed Image for Side",
+        "description": "Returns the preprocessed (color JPEG) image for the given side directly.",
+        "operationId": "get_image_for_side_api_v1_inspections__inspection_id__images__side__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "inspection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Inspection Id"
+            }
+          },
+          {
+            "name": "side",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Side"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/inspections/{inspection_id}/ocr": {
+      "post": {
+        "tags": [
+          "Inspections & Image Preprocessing"
+        ],
+        "summary": "Run Dual OCR & Consensus Pipeline",
+        "description": "Executes dual OCR extraction (PaddleOCR and Tesseract) on all preprocessed images associated with this inspection. Reconciles character/token level outputs using spatial IoU alignment, Levenshtein distance metrics, and digit mismatch verification. Updates the Product record and advances inspection status to 'extracted'.",
+        "operationId": "run_dual_ocr_api_v1_inspections__inspection_id__ocr_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "inspection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Inspection Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCRRunResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Inspections & Image Preprocessing"
+        ],
+        "summary": "Get OCR Consensus Data",
+        "description": "Retrieves existing raw PaddleOCR, Tesseract, and reconciled consensus matrix for the inspection.",
+        "operationId": "get_ocr_consensus_api_v1_inspections__inspection_id__ocr_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "inspection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Inspection Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCRRunResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/inspections/{inspection_id}/extract-declarations": {
+      "post": {
+        "tags": [
+          "Inspections & Image Preprocessing"
+        ],
+        "summary": "Extract Statutory Declarations (Rule 6)",
+        "description": "Parses OCR consensus text using specialized regex and NLP rules to extract all mandatory declarations under Rule 6 of Legal Metrology (Packaged Commodities) Rules, 2011. Populates the Product record with MRP, Net Quantity, Dates, Batch No, Manufacturer, Origin, and Consumer Care details.",
+        "operationId": "extract_statutory_declarations_api_v1_inspections__inspection_id__extract_declarations_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "inspection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Inspection Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtractedDeclarationsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/inspections/{inspection_id}/declarations": {
+      "get": {
+        "tags": [
+          "Inspections & Image Preprocessing"
+        ],
+        "summary": "Get Extracted Declarations",
+        "description": "Retrieves structured statutory declarations and confidence metrics extracted from the product packaging.",
+        "operationId": "get_extracted_declarations_api_v1_inspections__inspection_id__declarations_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "inspection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Inspection Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtractedDeclarationsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/inspections/{inspection_id}/validate": {
+      "post": {
+        "tags": [
+          "Inspections & Image Preprocessing"
+        ],
+        "summary": "Validate Statutory Compliance & Detect Violations",
+        "description": "Evaluates the pre-packaged commodity's extracted declarations against active statutory rules (Rule 6 of LM PCR 2011, Section 18 & Section 36 of LM Act 2009). Performs repeat offender intelligence analysis, calculates fine liabilities, creates persistent Violation records, and updates inspection compliance status.",
+        "operationId": "validate_inspection_compliance_api_v1_inspections__inspection_id__validate_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "inspection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Inspection Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/inspections/{inspection_id}/violations": {
+      "get": {
+        "tags": [
+          "Inspections & Image Preprocessing"
+        ],
+        "summary": "Get Statutory Violations",
+        "description": "Retrieves all grounded statutory violations and penalty assessments for the inspection.",
+        "operationId": "get_inspection_violations_api_v1_inspections__inspection_id__violations_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "inspection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Inspection Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ViolationItemSchema"
+                  },
+                  "title": "Response Get Inspection Violations Api V1 Inspections  Inspection Id  Violations Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/inspections/verify/{qr_token}": {
+      "get": {
+        "tags": [
+          "Inspections & Image Preprocessing"
+        ],
+        "summary": "Verify Inspection Authenticity via QR Token",
+        "description": "Public endpoint to verify the authenticity and tamper-proof cryptographic audit trail of an inspection report.",
+        "operationId": "verify_inspection_qr_api_v1_inspections_verify__qr_token__get",
+        "parameters": [
+          {
+            "name": "qr_token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Qr Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QRVerificationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/inspections/{inspection_id}/report": {
+      "post": {
+        "tags": [
+          "Inspections & Image Preprocessing"
+        ],
+        "summary": "Generate Statutory Inspection Report & Notice PDF",
+        "description": "Generates a court-admissible PDF inspection report and statutory legal notice with ReportLab, embeds verification QR code, computes SHA-256 chain-of-custody hash, and sets inspection status to completed.",
+        "operationId": "generate_inspection_report_api_v1_inspections__inspection_id__report_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "inspection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Inspection Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/inspections/{inspection_id}/report/download": {
+      "get": {
+        "tags": [
+          "Inspections & Image Preprocessing"
+        ],
+        "summary": "Download Inspection Report PDF",
+        "description": "Streams the generated court-admissible PDF inspection report.",
+        "operationId": "download_inspection_report_api_v1_inspections__inspection_id__report_download_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "inspection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Inspection Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dashboard/metrics": {
+      "get": {
+        "tags": [
+          "Executive Analytics & Dashboard"
+        ],
+        "summary": "Get Executive Compliance KPIs",
+        "description": "Retrieves aggregate compliance rates, severity breakdowns, and penalty estimates.",
+        "operationId": "get_dashboard_metrics_api_v1_dashboard_metrics_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by state name",
+              "title": "State"
+            },
+            "description": "Filter by state name"
+          },
+          {
+            "name": "district",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by district name",
+              "title": "District"
+            },
+            "description": "Filter by district name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutiveMetricsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dashboard/trends": {
+      "get": {
+        "tags": [
+          "Executive Analytics & Dashboard"
+        ],
+        "summary": "Get Time-Series Compliance Trends",
+        "description": "Returns daily inspection volumes, compliant counts, and compliance rates.",
+        "operationId": "get_dashboard_trends_api_v1_dashboard_trends_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 365,
+              "minimum": 1,
+              "description": "Number of historical days to analyze",
+              "default": 30,
+              "title": "Days"
+            },
+            "description": "Number of historical days to analyze"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TrendItemSchema"
+                  },
+                  "title": "Response Get Dashboard Trends Api V1 Dashboard Trends Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dashboard/top-violations": {
+      "get": {
+        "tags": [
+          "Executive Analytics & Dashboard"
+        ],
+        "summary": "Get Top Statutory Violations",
+        "description": "Returns most frequently breached rules under Legal Metrology PCR 2011.",
+        "operationId": "get_top_violations_api_v1_dashboard_top_violations_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "description": "Max violations to return",
+              "default": 5,
+              "title": "Limit"
+            },
+            "description": "Max violations to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TopViolationItemSchema"
+                  },
+                  "title": "Response Get Top Violations Api V1 Dashboard Top Violations Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dashboard/jurisdiction-heatmap": {
+      "get": {
+        "tags": [
+          "Executive Analytics & Dashboard"
+        ],
+        "summary": "Get GIS Jurisdiction Compliance Heatmap",
+        "description": "Computes district and state-level compliance statistics and average GPS centroids for GIS mapping.",
+        "operationId": "get_jurisdiction_heatmap_api_v1_dashboard_jurisdiction_heatmap_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/JurisdictionHeatmapItemSchema"
+                  },
+                  "type": "array",
+                  "title": "Response Get Jurisdiction Heatmap Api V1 Dashboard Jurisdiction Heatmap Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/dashboard/repeat-offenders": {
+      "get": {
+        "tags": [
+          "Executive Analytics & Dashboard"
+        ],
+        "summary": "Get Repeat Offenders Leaderboard",
+        "description": "Tracks manufacturers and brands with highest repeat infraction frequency.",
+        "operationId": "get_repeat_offenders_api_v1_dashboard_repeat_offenders_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Max offenders to list",
+              "default": 10,
+              "title": "Limit"
+            },
+            "description": "Max offenders to list"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RepeatOffenderLeaderboardItemSchema"
+                  },
+                  "title": "Response Get Repeat Offenders Api V1 Dashboard Repeat Offenders Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/audit-logs": {
+      "get": {
+        "tags": [
+          "Immutable Audit Trail"
+        ],
+        "summary": "List Immutable Audit Logs",
+        "description": "Retrieves filterable, paginated audit logs for legal scrutiny, supervisory monitoring, and court disclosure.",
+        "operationId": "list_audit_logs_api_v1_audit_logs_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Skip"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by action name (e.g. VALIDATE_COMPLIANCE)",
+              "title": "Action"
+            },
+            "description": "Filter by action name (e.g. VALIDATE_COMPLIANCE)"
+          },
+          {
+            "name": "entity_name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by entity (e.g. Inspection, Report)",
+              "title": "Entity Name"
+            },
+            "description": "Filter by entity (e.g. Inspection, Report)"
+          },
+          {
+            "name": "entity_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by entity ID",
+              "title": "Entity Id"
+            },
+            "description": "Filter by entity ID"
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by user ID",
+              "title": "User Id"
+            },
+            "description": "Filter by user ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_AuditLogResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "tags": [
+          "Root"
+        ],
+        "summary": "Root",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AddImagesResponse": {
+        "properties": {
+          "inspection_id": {
+            "type": "string",
+            "title": "Inspection Id"
+          },
+          "added_images": {
+            "items": {
+              "$ref": "#/components/schemas/InspectionImageResponse"
+            },
+            "type": "array",
+            "title": "Added Images"
+          }
+        },
+        "type": "object",
+        "required": [
+          "inspection_id",
+          "added_images"
+        ],
+        "title": "AddImagesResponse",
+        "description": "Response when adding images to an existing inspection."
+      },
+      "AuditLogResponse": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "title": "Action"
+          },
+          "entity_name": {
+            "type": "string",
+            "title": "Entity Name"
+          },
+          "entity_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entity Id"
+          },
+          "ip_address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ip Address"
+          },
+          "user_agent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Agent"
+          },
+          "details": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Details",
+            "default": {}
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "action",
+          "entity_name",
+          "id",
+          "created_at"
+        ],
+        "title": "AuditLogResponse"
+      },
+      "BatchDeclarationSchema": {
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence",
+            "default": 0.0
+          }
+        },
+        "type": "object",
+        "title": "BatchDeclarationSchema"
+      },
+      "BatchSyncInspectionItem": {
+        "properties": {
+          "client_offline_id": {
+            "type": "string",
+            "title": "Client Offline Id",
+            "description": "Unique UUID generated on offline mobile tablet"
+          },
+          "store_name": {
+            "type": "string",
+            "title": "Store Name"
+          },
+          "store_address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Address"
+          },
+          "district": {
+            "type": "string",
+            "title": "District"
+          },
+          "state": {
+            "type": "string",
+            "title": "State"
+          },
+          "gps_latitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gps Latitude"
+          },
+          "gps_longitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gps Longitude"
+          },
+          "offline_captured_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offline Captured At"
+          },
+          "product_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Name"
+          },
+          "brand_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand Name"
+          },
+          "ocr_raw_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ocr Raw Text",
+            "description": "Consensus OCR text captured offline"
+          }
+        },
+        "type": "object",
+        "required": [
+          "client_offline_id",
+          "store_name",
+          "district",
+          "state"
+        ],
+        "title": "BatchSyncInspectionItem"
+      },
+      "BatchSyncRequest": {
+        "properties": {
+          "inspections": {
+            "items": {
+              "$ref": "#/components/schemas/BatchSyncInspectionItem"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Inspections"
+          }
+        },
+        "type": "object",
+        "required": [
+          "inspections"
+        ],
+        "title": "BatchSyncRequest"
+      },
+      "BatchSyncResponse": {
+        "properties": {
+          "total_submitted": {
+            "type": "integer",
+            "title": "Total Submitted"
+          },
+          "successfully_synced": {
+            "type": "integer",
+            "title": "Successfully Synced"
+          },
+          "failed_count": {
+            "type": "integer",
+            "title": "Failed Count",
+            "default": 0
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/BatchSyncResultItem"
+            },
+            "type": "array",
+            "title": "Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_submitted",
+          "successfully_synced"
+        ],
+        "title": "BatchSyncResponse"
+      },
+      "BatchSyncResultItem": {
+        "properties": {
+          "client_offline_id": {
+            "type": "string",
+            "title": "Client Offline Id"
+          },
+          "inspection_id": {
+            "type": "string",
+            "title": "Inspection Id"
+          },
+          "inspection_number": {
+            "type": "string",
+            "title": "Inspection Number"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "compliance_status": {
+            "type": "string",
+            "title": "Compliance Status"
+          },
+          "violations_count": {
+            "type": "integer",
+            "title": "Violations Count"
+          },
+          "is_synced": {
+            "type": "boolean",
+            "title": "Is Synced",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "client_offline_id",
+          "inspection_id",
+          "inspection_number",
+          "status",
+          "compliance_status",
+          "violations_count"
+        ],
+        "title": "BatchSyncResultItem"
+      },
+      "Body_add_images_api_v1_inspections__inspection_id__images_post": {
+        "properties": {
+          "images": {
+            "items": {
+              "type": "string",
+              "contentMediaType": "application/octet-stream"
+            },
+            "type": "array",
+            "title": "Images",
+            "description": "Additional images to add"
+          },
+          "sides": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sides",
+            "description": "Sides matching each image"
+          }
+        },
+        "type": "object",
+        "required": [
+          "images",
+          "sides"
+        ],
+        "title": "Body_add_images_api_v1_inspections__inspection_id__images_post"
+      },
+      "Body_create_inspection_api_v1_inspections__post": {
+        "properties": {
+          "images": {
+            "items": {
+              "type": "string",
+              "contentMediaType": "application/octet-stream"
+            },
+            "type": "array",
+            "title": "Images",
+            "description": "1 to 5 product label images (JPEG/PNG/WEBP/BMP, max 15 MB each)"
+          },
+          "sides": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sides",
+            "description": "Side labels matching each image: front | back | left | right | top"
+          },
+          "district": {
+            "type": "string",
+            "title": "District",
+            "description": "District where inspection is conducted"
+          },
+          "state": {
+            "type": "string",
+            "title": "State",
+            "description": "State where inspection is conducted"
+          },
+          "store_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Name",
+            "description": "Name of inspected shop/store"
+          },
+          "store_address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Address",
+            "description": "Address of shop/store"
+          },
+          "gps_latitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gps Latitude",
+            "description": "GPS latitude (-90 to 90)"
+          },
+          "gps_longitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gps Longitude",
+            "description": "GPS longitude (-180 to 180)"
+          },
+          "gps_accuracy_meters": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gps Accuracy Meters",
+            "description": "GPS accuracy in metres"
+          },
+          "inspector_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inspector Notes",
+            "description": "Inspector notes"
+          },
+          "rule_version_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rule Version Id",
+            "description": "Active rule version UUID"
+          }
+        },
+        "type": "object",
+        "required": [
+          "images",
+          "sides",
+          "district",
+          "state"
+        ],
+        "title": "Body_create_inspection_api_v1_inspections__post"
+      },
+      "Body_login_access_token_api_v1_auth_login_post": {
+        "properties": {
+          "grant_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^password$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grant Type"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "title": "Password"
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope",
+            "default": ""
+          },
+          "client_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Id"
+          },
+          "client_secret": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "format": "password",
+            "title": "Client Secret"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "title": "Body_login_access_token_api_v1_auth_login_post"
+      },
+      "CommoditySchema": {
+        "properties": {
+          "generic_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generic Name"
+          },
+          "brand_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand Name"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence",
+            "default": 0.0
+          }
+        },
+        "type": "object",
+        "title": "CommoditySchema"
+      },
+      "ComplianceBreakdownSchema": {
+        "properties": {
+          "compliant": {
+            "type": "integer",
+            "title": "Compliant",
+            "default": 0
+          },
+          "non_compliant": {
+            "type": "integer",
+            "title": "Non Compliant",
+            "default": 0
+          },
+          "review_required": {
+            "type": "integer",
+            "title": "Review Required",
+            "default": 0
+          },
+          "pending": {
+            "type": "integer",
+            "title": "Pending",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "ComplianceBreakdownSchema"
+      },
+      "ComplianceValidationSummarySchema": {
+        "properties": {
+          "total_violations": {
+            "type": "integer",
+            "title": "Total Violations",
+            "default": 0
+          },
+          "critical_violations": {
+            "type": "integer",
+            "title": "Critical Violations",
+            "default": 0
+          },
+          "major_violations": {
+            "type": "integer",
+            "title": "Major Violations",
+            "default": 0
+          },
+          "minor_violations": {
+            "type": "integer",
+            "title": "Minor Violations",
+            "default": 0
+          },
+          "is_repeat_offender": {
+            "type": "boolean",
+            "title": "Is Repeat Offender",
+            "default": false
+          },
+          "prior_offence_count": {
+            "type": "integer",
+            "title": "Prior Offence Count",
+            "default": 0
+          },
+          "prior_inspections": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Prior Inspections"
+          }
+        },
+        "type": "object",
+        "title": "ComplianceValidationSummarySchema"
+      },
+      "ConsensusTokenSchema": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence"
+          },
+          "box": {
+            "items": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Box"
+          },
+          "chosen_engine": {
+            "type": "string",
+            "title": "Chosen Engine"
+          },
+          "paddle_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paddle Text"
+          },
+          "tesseract_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tesseract Text"
+          },
+          "paddle_confidence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paddle Confidence"
+          },
+          "tesseract_confidence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tesseract Confidence"
+          },
+          "similarity_ratio": {
+            "type": "number",
+            "title": "Similarity Ratio",
+            "default": 1.0
+          },
+          "is_disagreement": {
+            "type": "boolean",
+            "title": "Is Disagreement",
+            "default": false
+          },
+          "disagreement_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Disagreement Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text",
+          "confidence",
+          "box",
+          "chosen_engine"
+        ],
+        "title": "ConsensusTokenSchema"
+      },
+      "ConsumerCareSchema": {
+        "properties": {
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence",
+            "default": 0.0
+          }
+        },
+        "type": "object",
+        "title": "ConsumerCareSchema"
+      },
+      "CountryOfOriginSchema": {
+        "properties": {
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence",
+            "default": 0.0
+          }
+        },
+        "type": "object",
+        "title": "CountryOfOriginSchema"
+      },
+      "DatesDeclarationSchema": {
+        "properties": {
+          "mfg_date_raw": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mfg Date Raw"
+          },
+          "mfg_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mfg Date"
+          },
+          "exp_date_raw": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exp Date Raw"
+          },
+          "exp_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exp Date"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence",
+            "default": 0.0
+          }
+        },
+        "type": "object",
+        "title": "DatesDeclarationSchema"
+      },
+      "DeclarationSummarySchema": {
+        "properties": {
+          "declared_fields_count": {
+            "type": "integer",
+            "title": "Declared Fields Count",
+            "default": 0
+          },
+          "missing_mandatory_fields": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Missing Mandatory Fields"
+          },
+          "overall_confidence": {
+            "type": "number",
+            "title": "Overall Confidence",
+            "default": 0.0
+          }
+        },
+        "type": "object",
+        "title": "DeclarationSummarySchema"
+      },
+      "DeclarationsPayloadSchema": {
+        "properties": {
+          "mrp": {
+            "$ref": "#/components/schemas/MRPDeclarationSchema"
+          },
+          "net_quantity": {
+            "$ref": "#/components/schemas/NetQuantityDeclarationSchema"
+          },
+          "unit_sale_price": {
+            "$ref": "#/components/schemas/USPDeclarationSchema"
+          },
+          "dates": {
+            "$ref": "#/components/schemas/DatesDeclarationSchema"
+          },
+          "batch_number": {
+            "$ref": "#/components/schemas/BatchDeclarationSchema"
+          },
+          "manufacturer_details": {
+            "$ref": "#/components/schemas/ManufacturerDetailsSchema"
+          },
+          "country_of_origin": {
+            "$ref": "#/components/schemas/CountryOfOriginSchema"
+          },
+          "consumer_care": {
+            "$ref": "#/components/schemas/ConsumerCareSchema"
+          },
+          "commodity": {
+            "$ref": "#/components/schemas/CommoditySchema"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/DeclarationSummarySchema"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mrp",
+          "net_quantity",
+          "unit_sale_price",
+          "dates",
+          "batch_number",
+          "manufacturer_details",
+          "country_of_origin",
+          "consumer_care",
+          "commodity",
+          "summary"
+        ],
+        "title": "DeclarationsPayloadSchema"
+      },
+      "DeleteResponse": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "inspection_id": {
+            "type": "string",
+            "title": "Inspection Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message",
+          "inspection_id"
+        ],
+        "title": "DeleteResponse",
+        "description": "Confirmation of resource deletion."
+      },
+      "ExecutiveMetricsResponse": {
+        "properties": {
+          "total_inspections": {
+            "type": "integer",
+            "title": "Total Inspections"
+          },
+          "compliance_rate_percentage": {
+            "type": "number",
+            "title": "Compliance Rate Percentage"
+          },
+          "compliance_breakdown": {
+            "$ref": "#/components/schemas/ComplianceBreakdownSchema"
+          },
+          "status_breakdown": {
+            "$ref": "#/components/schemas/StatusBreakdownSchema"
+          },
+          "violations_summary": {
+            "$ref": "#/components/schemas/ViolationsSummarySchema"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_inspections",
+          "compliance_rate_percentage",
+          "compliance_breakdown",
+          "status_breakdown",
+          "violations_summary"
+        ],
+        "title": "ExecutiveMetricsResponse"
+      },
+      "ExtractedDeclarationsResponse": {
+        "properties": {
+          "inspection_id": {
+            "type": "string",
+            "title": "Inspection Id"
+          },
+          "inspection_number": {
+            "type": "string",
+            "title": "Inspection Number"
+          },
+          "product_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "declarations": {
+            "$ref": "#/components/schemas/DeclarationsPayloadSchema"
+          }
+        },
+        "type": "object",
+        "required": [
+          "inspection_id",
+          "inspection_number",
+          "status",
+          "declarations"
+        ],
+        "title": "ExtractedDeclarationsResponse"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "InspectionImageResponse": {
+        "properties": {
+          "side": {
+            "type": "string",
+            "title": "Side",
+            "description": "Image side: front/back/left/right/top"
+          },
+          "raw_url": {
+            "type": "string",
+            "title": "Raw Url",
+            "description": "URL to the original uploaded image"
+          },
+          "processed_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Processed Url",
+            "description": "URL to the color-processed JPEG"
+          },
+          "grayscale_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grayscale Url",
+            "description": "URL to the grayscale PNG for OCR"
+          },
+          "preprocessing": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PreprocessingMetadata"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Preprocessing pipeline result metadata"
+          },
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether preprocessing succeeded for this side",
+            "default": true
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error",
+            "description": "Error message if preprocessing failed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "side",
+          "raw_url"
+        ],
+        "title": "InspectionImageResponse"
+      },
+      "InspectionListResponse": {
+        "properties": {
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "skip": {
+            "type": "integer",
+            "title": "Skip"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/InspectionSummary"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total",
+          "skip",
+          "limit",
+          "items"
+        ],
+        "title": "InspectionListResponse",
+        "description": "Paginated list wrapper."
+      },
+      "InspectionResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "inspection_number": {
+            "type": "string",
+            "title": "Inspection Number"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "compliance_status": {
+            "type": "string",
+            "title": "Compliance Status"
+          },
+          "district": {
+            "type": "string",
+            "title": "District"
+          },
+          "state": {
+            "type": "string",
+            "title": "State"
+          },
+          "store_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Name"
+          },
+          "store_address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Address"
+          },
+          "gps_latitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gps Latitude"
+          },
+          "gps_longitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gps Longitude"
+          },
+          "gps_accuracy_meters": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gps Accuracy Meters"
+          },
+          "inspector_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inspector Notes"
+          },
+          "images": {
+            "items": {
+              "$ref": "#/components/schemas/InspectionImageResponse"
+            },
+            "type": "array",
+            "title": "Images"
+          },
+          "preprocessing_metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preprocessing Metadata",
+            "description": "Per-side preprocessing metadata keyed by side name"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "inspection_number",
+          "status",
+          "compliance_status",
+          "district",
+          "state",
+          "store_name",
+          "store_address",
+          "gps_latitude",
+          "gps_longitude",
+          "gps_accuracy_meters",
+          "inspector_notes",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "InspectionResponse",
+        "description": "Full inspection detail response."
+      },
+      "InspectionSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "inspection_number": {
+            "type": "string",
+            "title": "Inspection Number"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "compliance_status": {
+            "type": "string",
+            "title": "Compliance Status"
+          },
+          "district": {
+            "type": "string",
+            "title": "District"
+          },
+          "state": {
+            "type": "string",
+            "title": "State"
+          },
+          "store_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Name"
+          },
+          "total_images": {
+            "type": "integer",
+            "title": "Total Images"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "inspection_number",
+          "status",
+          "compliance_status",
+          "district",
+          "state",
+          "store_name",
+          "total_images",
+          "created_at"
+        ],
+        "title": "InspectionSummary",
+        "description": "Lightweight response for list endpoints."
+      },
+      "JurisdictionHeatmapItemSchema": {
+        "properties": {
+          "district": {
+            "type": "string",
+            "title": "District"
+          },
+          "state": {
+            "type": "string",
+            "title": "State"
+          },
+          "total_inspections": {
+            "type": "integer",
+            "title": "Total Inspections"
+          },
+          "compliant_count": {
+            "type": "integer",
+            "title": "Compliant Count"
+          },
+          "non_compliant_count": {
+            "type": "integer",
+            "title": "Non Compliant Count"
+          },
+          "compliance_rate": {
+            "type": "number",
+            "title": "Compliance Rate"
+          },
+          "centroid_latitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Centroid Latitude"
+          },
+          "centroid_longitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Centroid Longitude"
+          }
+        },
+        "type": "object",
+        "required": [
+          "district",
+          "state",
+          "total_inspections",
+          "compliant_count",
+          "non_compliant_count",
+          "compliance_rate"
+        ],
+        "title": "JurisdictionHeatmapItemSchema"
+      },
+      "MRPDeclarationSchema": {
+        "properties": {
+          "raw": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Raw"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency",
+            "default": "INR"
+          },
+          "inclusive_taxes_declared": {
+            "type": "boolean",
+            "title": "Inclusive Taxes Declared",
+            "default": false
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence",
+            "default": 0.0
+          }
+        },
+        "type": "object",
+        "title": "MRPDeclarationSchema"
+      },
+      "ManufacturerDetailsSchema": {
+        "properties": {
+          "manufacturer_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manufacturer Name"
+          },
+          "manufacturer_address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manufacturer Address"
+          },
+          "packer_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Packer Name"
+          },
+          "packer_address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Packer Address"
+          },
+          "importer_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Importer Name"
+          },
+          "importer_address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Importer Address"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence",
+            "default": 0.0
+          }
+        },
+        "type": "object",
+        "title": "ManufacturerDetailsSchema"
+      },
+      "NetQuantityDeclarationSchema": {
+        "properties": {
+          "raw": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Raw"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "is_standard_unit": {
+            "type": "boolean",
+            "title": "Is Standard Unit",
+            "default": false
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence",
+            "default": 0.0
+          }
+        },
+        "type": "object",
+        "title": "NetQuantityDeclarationSchema"
+      },
+      "OCRConsensusPayloadSchema": {
+        "properties": {
+          "per_side": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/SideOCRDetailSchema"
+            },
+            "type": "object",
+            "title": "Per Side"
+          },
+          "aggregated_consensus_text": {
+            "type": "string",
+            "title": "Aggregated Consensus Text"
+          },
+          "aggregated_paddle_text": {
+            "type": "string",
+            "title": "Aggregated Paddle Text"
+          },
+          "aggregated_tesseract_text": {
+            "type": "string",
+            "title": "Aggregated Tesseract Text"
+          },
+          "total_tokens": {
+            "type": "integer",
+            "title": "Total Tokens"
+          },
+          "total_disagreements": {
+            "type": "integer",
+            "title": "Total Disagreements"
+          },
+          "overall_confidence": {
+            "type": "number",
+            "title": "Overall Confidence"
+          },
+          "has_ocr_disagreement": {
+            "type": "boolean",
+            "title": "Has Ocr Disagreement"
+          },
+          "manual_review_required": {
+            "type": "boolean",
+            "title": "Manual Review Required"
+          }
+        },
+        "type": "object",
+        "required": [
+          "per_side",
+          "aggregated_consensus_text",
+          "aggregated_paddle_text",
+          "aggregated_tesseract_text",
+          "total_tokens",
+          "total_disagreements",
+          "overall_confidence",
+          "has_ocr_disagreement",
+          "manual_review_required"
+        ],
+        "title": "OCRConsensusPayloadSchema"
+      },
+      "OCRRunResponse": {
+        "properties": {
+          "inspection_id": {
+            "type": "string",
+            "title": "Inspection Id"
+          },
+          "inspection_number": {
+            "type": "string",
+            "title": "Inspection Number"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "ocr_consensus": {
+            "$ref": "#/components/schemas/OCRConsensusPayloadSchema"
+          }
+        },
+        "type": "object",
+        "required": [
+          "inspection_id",
+          "inspection_number",
+          "status",
+          "ocr_consensus"
+        ],
+        "title": "OCRRunResponse"
+      },
+      "PaginatedResponse_AuditLogResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AuditLogResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          },
+          "pages": {
+            "type": "integer",
+            "title": "Pages"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size",
+          "pages"
+        ],
+        "title": "PaginatedResponse[AuditLogResponse]"
+      },
+      "PaginatedResponse_UserResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/UserResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          },
+          "pages": {
+            "type": "integer",
+            "title": "Pages"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size",
+          "pages"
+        ],
+        "title": "PaginatedResponse[UserResponse]"
+      },
+      "PreprocessingMetadata": {
+        "properties": {
+          "skew_angle_degrees": {
+            "type": "number",
+            "title": "Skew Angle Degrees",
+            "description": "Detected skew angle in degrees"
+          },
+          "perspective_corrected": {
+            "type": "boolean",
+            "title": "Perspective Corrected",
+            "description": "Whether perspective warp was applied"
+          },
+          "glare_regions_detected": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Glare Regions Detected",
+            "description": "Number of glare blobs detected"
+          },
+          "contrast_enhanced": {
+            "type": "boolean",
+            "title": "Contrast Enhanced",
+            "description": "Whether CLAHE was applied",
+            "default": true
+          },
+          "quality_score": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Quality Score",
+            "description": "IQA composite score 0-100"
+          },
+          "processing_time_ms": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Processing Time Ms",
+            "description": "Pipeline runtime in milliseconds"
+          },
+          "original_size": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Original Size",
+            "description": "WxH of input image, e.g. '3024x4032'"
+          },
+          "processed_size": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Processed Size",
+            "description": "WxH of processed image"
+          },
+          "pipeline_steps": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pipeline Steps",
+            "description": "Ordered list of completed pipeline steps"
+          }
+        },
+        "type": "object",
+        "required": [
+          "skew_angle_degrees",
+          "perspective_corrected",
+          "glare_regions_detected",
+          "quality_score",
+          "processing_time_ms"
+        ],
+        "title": "PreprocessingMetadata"
+      },
+      "QRVerificationResponse": {
+        "properties": {
+          "verified": {
+            "type": "boolean",
+            "title": "Verified"
+          },
+          "tamper_evident_status": {
+            "type": "string",
+            "title": "Tamper Evident Status"
+          },
+          "docket_number": {
+            "type": "string",
+            "title": "Docket Number"
+          },
+          "inspection_number": {
+            "type": "string",
+            "title": "Inspection Number"
+          },
+          "chain_of_custody_hash": {
+            "type": "string",
+            "title": "Chain Of Custody Hash"
+          },
+          "qr_token": {
+            "type": "string",
+            "title": "Qr Token"
+          },
+          "compliance_status": {
+            "type": "string",
+            "title": "Compliance Status"
+          },
+          "jurisdiction": {
+            "type": "string",
+            "title": "Jurisdiction"
+          },
+          "store_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Name"
+          },
+          "inspection_date": {
+            "type": "string",
+            "title": "Inspection Date"
+          },
+          "product_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Name"
+          },
+          "manufacturer_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manufacturer Name"
+          },
+          "total_violations": {
+            "type": "integer",
+            "title": "Total Violations",
+            "default": 0
+          },
+          "violations": {
+            "items": {
+              "$ref": "#/components/schemas/QRVerificationViolationSchema"
+            },
+            "type": "array",
+            "title": "Violations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "verified",
+          "tamper_evident_status",
+          "docket_number",
+          "inspection_number",
+          "chain_of_custody_hash",
+          "qr_token",
+          "compliance_status",
+          "jurisdiction",
+          "inspection_date"
+        ],
+        "title": "QRVerificationResponse"
+      },
+      "QRVerificationViolationSchema": {
+        "properties": {
+          "section": {
+            "type": "string",
+            "title": "Section"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity"
+          }
+        },
+        "type": "object",
+        "required": [
+          "section",
+          "title",
+          "severity"
+        ],
+        "title": "QRVerificationViolationSchema"
+      },
+      "RepeatOffenderLeaderboardItemSchema": {
+        "properties": {
+          "manufacturer_name": {
+            "type": "string",
+            "title": "Manufacturer Name"
+          },
+          "brand_name": {
+            "type": "string",
+            "title": "Brand Name"
+          },
+          "total_violations": {
+            "type": "integer",
+            "title": "Total Violations"
+          },
+          "inspections_count": {
+            "type": "integer",
+            "title": "Inspections Count"
+          },
+          "last_inspection_date": {
+            "type": "string",
+            "title": "Last Inspection Date"
+          }
+        },
+        "type": "object",
+        "required": [
+          "manufacturer_name",
+          "brand_name",
+          "total_violations",
+          "inspections_count",
+          "last_inspection_date"
+        ],
+        "title": "RepeatOffenderLeaderboardItemSchema"
+      },
+      "ReportResponse": {
+        "properties": {
+          "report_id": {
+            "type": "string",
+            "title": "Report Id"
+          },
+          "docket_number": {
+            "type": "string",
+            "title": "Docket Number"
+          },
+          "inspection_id": {
+            "type": "string",
+            "title": "Inspection Id"
+          },
+          "inspection_number": {
+            "type": "string",
+            "title": "Inspection Number"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "chain_of_custody_hash": {
+            "type": "string",
+            "title": "Chain Of Custody Hash"
+          },
+          "qr_verification_token": {
+            "type": "string",
+            "title": "Qr Verification Token"
+          },
+          "pdf_download_url": {
+            "type": "string",
+            "title": "Pdf Download Url"
+          },
+          "generated_at": {
+            "type": "string",
+            "title": "Generated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "report_id",
+          "docket_number",
+          "inspection_id",
+          "inspection_number",
+          "status",
+          "chain_of_custody_hash",
+          "qr_verification_token",
+          "pdf_download_url",
+          "generated_at"
+        ],
+        "title": "ReportResponse"
+      },
+      "ResponseEnvelope_List_RuleResponse__": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Operation completed successfully"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/RuleResponse"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "title": "ResponseEnvelope[List[RuleResponse]]"
+      },
+      "ResponseEnvelope_List_RuleVersionResponse__": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Operation completed successfully"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/RuleVersionResponse"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "title": "ResponseEnvelope[List[RuleVersionResponse]]"
+      },
+      "ResponseEnvelope_PaginatedResponse_UserResponse__": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Operation completed successfully"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedResponse_UserResponse_"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "title": "ResponseEnvelope[PaginatedResponse[UserResponse]]"
+      },
+      "ResponseEnvelope_RuleResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Operation completed successfully"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RuleResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "title": "ResponseEnvelope[RuleResponse]"
+      },
+      "ResponseEnvelope_RuleVersionResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Operation completed successfully"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RuleVersionResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "title": "ResponseEnvelope[RuleVersionResponse]"
+      },
+      "ResponseEnvelope_UserResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Operation completed successfully"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/UserResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "title": "ResponseEnvelope[UserResponse]"
+      },
+      "RuleCreate": {
+        "properties": {
+          "rule_code": {
+            "type": "string",
+            "title": "Rule Code"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "statutory_source": {
+            "type": "string",
+            "title": "Statutory Source"
+          },
+          "statutory_penalty_source": {
+            "type": "string",
+            "title": "Statutory Penalty Source",
+            "default": "Section 36, Legal Metrology Act, 2009"
+          },
+          "penalty_first_offence": {
+            "type": "string",
+            "title": "Penalty First Offence",
+            "default": "Fine up to \u20b925,000"
+          },
+          "penalty_repeat_offence": {
+            "type": "string",
+            "title": "Penalty Repeat Offence",
+            "default": "Fine up to \u20b950,000 or imprisonment up to 1 year"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "field_to_validate": {
+            "type": "string",
+            "title": "Field To Validate"
+          },
+          "is_mandatory": {
+            "type": "boolean",
+            "title": "Is Mandatory",
+            "default": true
+          },
+          "validation_type": {
+            "type": "string",
+            "title": "Validation Type",
+            "default": "presence_and_format"
+          },
+          "validation_parameters": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Validation Parameters",
+            "default": {}
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity",
+            "default": "critical"
+          },
+          "state_override": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "State Override"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "default": true
+          },
+          "version_id": {
+            "type": "string",
+            "title": "Version Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rule_code",
+          "title",
+          "statutory_source",
+          "description",
+          "field_to_validate",
+          "version_id"
+        ],
+        "title": "RuleCreate"
+      },
+      "RuleResponse": {
+        "properties": {
+          "rule_code": {
+            "type": "string",
+            "title": "Rule Code"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "statutory_source": {
+            "type": "string",
+            "title": "Statutory Source"
+          },
+          "statutory_penalty_source": {
+            "type": "string",
+            "title": "Statutory Penalty Source",
+            "default": "Section 36, Legal Metrology Act, 2009"
+          },
+          "penalty_first_offence": {
+            "type": "string",
+            "title": "Penalty First Offence",
+            "default": "Fine up to \u20b925,000"
+          },
+          "penalty_repeat_offence": {
+            "type": "string",
+            "title": "Penalty Repeat Offence",
+            "default": "Fine up to \u20b950,000 or imprisonment up to 1 year"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "field_to_validate": {
+            "type": "string",
+            "title": "Field To Validate"
+          },
+          "is_mandatory": {
+            "type": "boolean",
+            "title": "Is Mandatory",
+            "default": true
+          },
+          "validation_type": {
+            "type": "string",
+            "title": "Validation Type",
+            "default": "presence_and_format"
+          },
+          "validation_parameters": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Validation Parameters",
+            "default": {}
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity",
+            "default": "critical"
+          },
+          "state_override": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "State Override"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "default": true
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "version_id": {
+            "type": "string",
+            "title": "Version Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rule_code",
+          "title",
+          "statutory_source",
+          "description",
+          "field_to_validate",
+          "id",
+          "version_id",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "RuleResponse"
+      },
+      "RuleVersionResponse": {
+        "properties": {
+          "version_tag": {
+            "type": "string",
+            "title": "Version Tag"
+          },
+          "statutory_act": {
+            "type": "string",
+            "title": "Statutory Act",
+            "default": "Legal Metrology Act, 2009 & Packaged Commodities Rules, 2011"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "gazette_notification_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gazette Notification Ref"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "default": true
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Published At"
+          },
+          "created_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By"
+          },
+          "rules": {
+            "items": {
+              "$ref": "#/components/schemas/RuleResponse"
+            },
+            "type": "array",
+            "title": "Rules",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "version_tag",
+          "id",
+          "published_at"
+        ],
+        "title": "RuleVersionResponse"
+      },
+      "SideConsensusSchema": {
+        "properties": {
+          "consensus_text": {
+            "type": "string",
+            "title": "Consensus Text"
+          },
+          "total_tokens": {
+            "type": "integer",
+            "title": "Total Tokens"
+          },
+          "disagreement_count": {
+            "type": "integer",
+            "title": "Disagreement Count"
+          },
+          "overall_confidence": {
+            "type": "number",
+            "title": "Overall Confidence"
+          },
+          "has_ocr_disagreement": {
+            "type": "boolean",
+            "title": "Has Ocr Disagreement"
+          },
+          "manual_review_required": {
+            "type": "boolean",
+            "title": "Manual Review Required"
+          },
+          "paddle_raw_text": {
+            "type": "string",
+            "title": "Paddle Raw Text",
+            "default": ""
+          },
+          "tesseract_raw_text": {
+            "type": "string",
+            "title": "Tesseract Raw Text",
+            "default": ""
+          },
+          "tokens": {
+            "items": {
+              "$ref": "#/components/schemas/ConsensusTokenSchema"
+            },
+            "type": "array",
+            "title": "Tokens"
+          }
+        },
+        "type": "object",
+        "required": [
+          "consensus_text",
+          "total_tokens",
+          "disagreement_count",
+          "overall_confidence",
+          "has_ocr_disagreement",
+          "manual_review_required"
+        ],
+        "title": "SideConsensusSchema"
+      },
+      "SideOCRDetailSchema": {
+        "properties": {
+          "image_path": {
+            "type": "string",
+            "title": "Image Path"
+          },
+          "paddle_success": {
+            "type": "boolean",
+            "title": "Paddle Success"
+          },
+          "tesseract_success": {
+            "type": "boolean",
+            "title": "Tesseract Success"
+          },
+          "paddle_time_ms": {
+            "type": "number",
+            "title": "Paddle Time Ms"
+          },
+          "tesseract_time_ms": {
+            "type": "number",
+            "title": "Tesseract Time Ms"
+          },
+          "consensus": {
+            "$ref": "#/components/schemas/SideConsensusSchema"
+          }
+        },
+        "type": "object",
+        "required": [
+          "image_path",
+          "paddle_success",
+          "tesseract_success",
+          "paddle_time_ms",
+          "tesseract_time_ms",
+          "consensus"
+        ],
+        "title": "SideOCRDetailSchema"
+      },
+      "StatusBreakdownSchema": {
+        "properties": {
+          "completed": {
+            "type": "integer",
+            "title": "Completed",
+            "default": 0
+          },
+          "validated": {
+            "type": "integer",
+            "title": "Validated",
+            "default": 0
+          },
+          "in_progress": {
+            "type": "integer",
+            "title": "In Progress",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "StatusBreakdownSchema"
+      },
+      "Token": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type",
+            "default": "bearer"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "full_name": {
+            "type": "string",
+            "title": "Full Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "user_id",
+          "email",
+          "role",
+          "full_name"
+        ],
+        "title": "Token"
+      },
+      "TopViolationItemSchema": {
+        "properties": {
+          "rule_code": {
+            "type": "string",
+            "title": "Rule Code"
+          },
+          "section_violated": {
+            "type": "string",
+            "title": "Section Violated"
+          },
+          "violation_title": {
+            "type": "string",
+            "title": "Violation Title"
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity"
+          },
+          "violation_count": {
+            "type": "integer",
+            "title": "Violation Count"
+          },
+          "percentage_of_total": {
+            "type": "number",
+            "title": "Percentage Of Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rule_code",
+          "section_violated",
+          "violation_title",
+          "severity",
+          "violation_count",
+          "percentage_of_total"
+        ],
+        "title": "TopViolationItemSchema"
+      },
+      "TrendItemSchema": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "total_inspections": {
+            "type": "integer",
+            "title": "Total Inspections"
+          },
+          "compliant_count": {
+            "type": "integer",
+            "title": "Compliant Count"
+          },
+          "non_compliant_count": {
+            "type": "integer",
+            "title": "Non Compliant Count"
+          },
+          "compliance_rate": {
+            "type": "number",
+            "title": "Compliance Rate"
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "total_inspections",
+          "compliant_count",
+          "non_compliant_count",
+          "compliance_rate"
+        ],
+        "title": "TrendItemSchema"
+      },
+      "USPDeclarationSchema": {
+        "properties": {
+          "raw": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Raw"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence",
+            "default": 0.0
+          }
+        },
+        "type": "object",
+        "title": "USPDeclarationSchema"
+      },
+      "UserCreate": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "full_name": {
+            "type": "string",
+            "title": "Full Name"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role",
+            "default": "inspector"
+          },
+          "badge_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Badge Number"
+          },
+          "phone_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone Number"
+          },
+          "jurisdiction_district": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Jurisdiction District"
+          },
+          "jurisdiction_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Jurisdiction State"
+          },
+          "is_active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Active",
+            "default": true
+          },
+          "password": {
+            "type": "string",
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "full_name",
+          "password"
+        ],
+        "title": "UserCreate"
+      },
+      "UserLogin": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "UserLogin"
+      },
+      "UserResponse": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "full_name": {
+            "type": "string",
+            "title": "Full Name"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role",
+            "default": "inspector"
+          },
+          "badge_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Badge Number"
+          },
+          "phone_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone Number"
+          },
+          "jurisdiction_district": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Jurisdiction District"
+          },
+          "jurisdiction_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Jurisdiction State"
+          },
+          "is_active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Active",
+            "default": true
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "full_name",
+          "id",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "UserResponse"
+      },
+      "UserUpdate": {
+        "properties": {
+          "email": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "email"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role"
+          },
+          "badge_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Badge Number"
+          },
+          "phone_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone Number"
+          },
+          "jurisdiction_district": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Jurisdiction District"
+          },
+          "jurisdiction_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Jurisdiction State"
+          },
+          "is_active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Active"
+          },
+          "password": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "title": "UserUpdate"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "ValidationResponse": {
+        "properties": {
+          "inspection_id": {
+            "type": "string",
+            "title": "Inspection Id"
+          },
+          "inspection_number": {
+            "type": "string",
+            "title": "Inspection Number"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "compliance_status": {
+            "type": "string",
+            "title": "Compliance Status"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/ComplianceValidationSummarySchema"
+          },
+          "violations": {
+            "items": {
+              "$ref": "#/components/schemas/ViolationItemSchema"
+            },
+            "type": "array",
+            "title": "Violations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "inspection_id",
+          "inspection_number",
+          "status",
+          "compliance_status",
+          "summary"
+        ],
+        "title": "ValidationResponse"
+      },
+      "ViolationItemSchema": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "rule_code": {
+            "type": "string",
+            "title": "Rule Code"
+          },
+          "field_affected": {
+            "type": "string",
+            "title": "Field Affected"
+          },
+          "section_violated": {
+            "type": "string",
+            "title": "Section Violated"
+          },
+          "statute_title": {
+            "type": "string",
+            "title": "Statute Title"
+          },
+          "penalty_provision": {
+            "type": "string",
+            "title": "Penalty Provision"
+          },
+          "estimated_fine": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Fine"
+          },
+          "violation_title": {
+            "type": "string",
+            "title": "Violation Title"
+          },
+          "violation_description": {
+            "type": "string",
+            "title": "Violation Description"
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity"
+          },
+          "is_repeat_offender_alert": {
+            "type": "boolean",
+            "title": "Is Repeat Offender Alert",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "rule_code",
+          "field_affected",
+          "section_violated",
+          "statute_title",
+          "penalty_provision",
+          "violation_title",
+          "violation_description",
+          "severity"
+        ],
+        "title": "ViolationItemSchema"
+      },
+      "ViolationsSummarySchema": {
+        "properties": {
+          "total_violations": {
+            "type": "integer",
+            "title": "Total Violations",
+            "default": 0
+          },
+          "critical": {
+            "type": "integer",
+            "title": "Critical",
+            "default": 0
+          },
+          "major": {
+            "type": "integer",
+            "title": "Major",
+            "default": 0
+          },
+          "minor": {
+            "type": "integer",
+            "title": "Minor",
+            "default": 0
+          },
+          "repeat_offender_alerts": {
+            "type": "integer",
+            "title": "Repeat Offender Alerts",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "ViolationsSummarySchema"
+      }
+    },
+    "securitySchemes": {
+      "OAuth2PasswordBearer": {
+        "type": "oauth2",
+        "flows": {
+          "password": {
+            "scopes": {},
+            "tokenUrl": "/api/v1/auth/login"
+          }
+        }
+      }
+    }
+  }
+}
