@@ -1,39 +1,73 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'camera_scan_screen.dart';
 import 'offline_queue_screen.dart';
 import 'login_screen.dart';
 
-class HomeDashboardScreen extends StatelessWidget {
+class HomeDashboardScreen extends StatefulWidget {
   const HomeDashboardScreen({super.key});
+
+  @override
+  State<HomeDashboardScreen> createState() => _HomeDashboardScreenState();
+}
+
+class _HomeDashboardScreenState extends State<HomeDashboardScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _badgeAnimController;
+
+  @override
+  void initState() {
+    super.initState();
+    _badgeAnimController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _badgeAnimController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1E293B),
+        backgroundColor: Colors.white,
         elevation: 0,
         title: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: const Color(0xFF10B981).withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
+            Hero(
+              tag: 'app_emblem',
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF2563EB), Color(0xFF7C3AED)],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF2563EB).withOpacity(0.25),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: const Icon(Icons.balance, color: Colors.white, size: 18),
               ),
-              child: const Icon(Icons.balance, color: Color(0xFF10B981), size: 20),
             ),
             const SizedBox(width: 10),
             const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Inspector Portal",
-                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  "Field Inspector",
+                  style: TextStyle(color: Color(0xFF0F172A), fontSize: 15, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  "Zone: Mumbai West • On Duty",
-                  style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+                  "Zone: Mumbai West • Active Shift",
+                  style: TextStyle(color: Color(0xFF64748B), fontSize: 11, fontWeight: FontWeight.w500),
                 ),
               ],
             ),
@@ -41,7 +75,7 @@ class HomeDashboardScreen extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.sync_alt, color: Color(0xFF38BDF8)),
+            icon: const Icon(Icons.cloud_sync_outlined, color: Color(0xFF2563EB)),
             onPressed: () {
               Navigator.push(
                 context,
@@ -50,7 +84,7 @@ class HomeDashboardScreen extends StatelessWidget {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.logout, color: Color(0xFF94A3B8)),
+            icon: const Icon(Icons.logout, color: Color(0xFF64748B)),
             onPressed: () {
               Navigator.pushReplacement(
                 context,
@@ -65,20 +99,162 @@ class HomeDashboardScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Quick Action Camera Banner
+            // Quick Action Camera Banner (Gradient & Soft Shadows)
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(22),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF065F46), Color(0xFF047857)],
+                  colors: [Color(0xFF2563EB), Color(0xFF7C3AED)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF10B981).withOpacity(0.2),
-                    blurRadius: 10,
+                    color: const Color(0xFF2563EB).withOpacity(0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Text(
+                          "RULE 6 AI SCANNER",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 11,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                      ),
+                      const Icon(Icons.qr_code_scanner, color: Colors.white, size: 28),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  const Text(
+                    "New Label Inspection",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    "Automatic OpenCV deskew, dual-OCR consensus, and instant Section 36 penalty check.",
+                    style: TextStyle(color: Color(0xFFDBEAFE), fontSize: 12),
+                  ),
+                  const SizedBox(height: 18),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const CameraScanScreen()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: const Color(0xFF2563EB),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.camera_alt, size: 18),
+                        SizedBox(width: 8),
+                        Text(
+                          "OPEN CAMERA SCANNER",
+                          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Metrics Grid (Light Claymorphic Cards)
+            Row(
+              children: [
+                Expanded(
+                  child: _buildMetricCard(
+                    title: "Shift Audits",
+                    value: "14",
+                    subtitle: "Today",
+                    icon: Icons.check_circle_outline,
+                    color: const Color(0xFF10B981),
+                    bgColor: const Color(0xFFECFDF5),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildMetricCard(
+                    title: "Breaches",
+                    value: "3",
+                    subtitle: "Sec 36(1)/(2)",
+                    icon: Icons.warning_amber_rounded,
+                    color: const Color(0xFFEF4444),
+                    bgColor: const Color(0xFFFEF2F2),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildMetricCard(
+                    title: "Recidivism Alerts",
+                    value: "1",
+                    subtitle: "2x Compounding",
+                    icon: Icons.priority_high,
+                    color: const Color(0xFFF59E0B),
+                    bgColor: const Color(0xFFFFFBEB),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildMetricCard(
+                    title: "Offline Queue",
+                    value: "0",
+                    subtitle: "All Synced",
+                    icon: Icons.cloud_done_outlined,
+                    color: const Color(0xFF2563EB),
+                    bgColor: const Color(0xFFEFF6FF),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+
+            // Statutory Reference Accordion
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF0F172A).withOpacity(0.04),
+                    blurRadius: 16,
                     offset: const Offset(0, 4),
                   ),
                 ],
@@ -87,110 +263,23 @@ class HomeDashboardScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      Icon(Icons.gavel, size: 18, color: Color(0xFF2563EB)),
+                      SizedBox(width: 8),
                       Text(
-                        "RULE 6 AI SCANNER",
-                        style: TextStyle(
-                          color: Color(0xFFD1FAE5),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                          letterSpacing: 1,
-                        ),
+                        "Statutory Reference Cards",
+                        style: TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 14),
                       ),
-                      Icon(Icons.qr_code_scanner, color: Colors.white, size: 24),
                     ],
                   ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    "Snap Commodity Label",
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900),
-                  ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    "Instant dual OCR consensus, price overcharging check, and Rule 6 compliance audit.",
-                    style: TextStyle(color: Color(0xFFA7F3D0), fontSize: 12),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const CameraScanScreen()),
-                      );
-                    },
-                    icon: const Icon(Icons.camera_alt, color: Color(0xFF065F46)),
-                    label: const Text("LAUNCH SCANNER", style: TextStyle(fontWeight: FontWeight.bold)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: const Color(0xFF065F46),
-                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
+                  const SizedBox(height: 12),
+                  _buildStatutoryItem("Rule 6(1)(a)", "Name & Address of Manufacturer / Packer"),
+                  _buildStatutoryItem("Rule 6(1)(b)", "Country of Origin (Imports)"),
+                  _buildStatutoryItem("Rule 6(1)(c)", "Net Quantity in Standard SI Units"),
+                  _buildStatutoryItem("Rule 6(1)(d)", "Month & Year of Manufacture / Import"),
+                  _buildStatutoryItem("Rule 6(1)(e)", "MRP (Inclusive of All Taxes)"),
                 ],
               ),
-            ),
-            const SizedBox(height: 20),
-
-            // Metrics Cards
-            const Text(
-              "Today's Enforcement Summary",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: _metricCard("Inspections", "18", Icons.fact_check, Colors.blue),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _metricCard("Violations", "4", Icons.warning_amber, Colors.amber),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                   child: _metricCard("Compounded", "₹1.5L", Icons.gavel, Colors.green),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Quick Shortcuts Grid
-            const Text(
-              "Quick Tools",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: _shortcutCard(
-                    context,
-                    title: "Offline Queue",
-                    subtitle: "2 dockets pending",
-                    icon: Icons.cloud_upload_outlined,
-                    color: Colors.cyan,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const OfflineQueueScreen()),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _shortcutCard(
-                    context,
-                    title: "Brand Registry",
-                    subtitle: "Verify Trust Tier",
-                    icon: Icons.verified_outlined,
-                    color: Colors.purple,
-                    onTap: () {},
-                  ),
-                ),
-              ],
             ),
           ],
         ),
@@ -198,60 +287,82 @@ class HomeDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _metricCard(String label, String value, IconData icon, MaterialColor color) {
+  Widget _buildMetricCard({
+    required String title,
+    required String value,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required Color bgColor,
+  }) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF334155)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.12),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: color[400], size: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(title, style: const TextStyle(color: Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.w600)),
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: bgColor,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, size: 16, color: color),
+              ),
+            ],
+          ),
           const SizedBox(height: 8),
-          Text(value, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-          Text(label, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
+          Text(
+            value,
+            style: TextStyle(color: color, fontSize: 24, fontWeight: FontWeight.w900),
+          ),
+          const SizedBox(height: 2),
+          Text(subtitle, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10, fontWeight: FontWeight.w500)),
         ],
       ),
     );
   }
 
-  Widget _shortcutCard(BuildContext context,
-      {required String title, required String subtitle, required IconData icon, required MaterialColor color, required VoidCallback onTap}) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: const Color(0xFF1E293B),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFF334155)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color[900]!.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: color[400], size: 20),
+  Widget _buildStatutoryItem(String code, String label) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: const Color(0xFFEFF6FF),
+              borderRadius: BorderRadius.circular(6),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-                  Text(subtitle, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10)),
-                ],
-              ),
+            child: Text(
+              code,
+              style: const TextStyle(color: Color(0xFF2563EB), fontSize: 11, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
             ),
-          ],
-        ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(color: Color(0xFF475569), fontSize: 12),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
       ),
     );
   }

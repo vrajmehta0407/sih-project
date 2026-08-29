@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'screens/login_screen.dart';
 
 void main() {
@@ -15,19 +15,23 @@ class LegalMetrologyFieldApp extends StatelessWidget {
       title: 'Legal Metrology Field Officer',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF0F172A),
-        primaryColor: const Color(0xFF10B981),
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFF10B981),
-          secondary: Color(0xFF38BDF8),
-          surface: Color(0xFF1E293B),
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+        primaryColor: const Color(0xFF2563EB),
+        colorScheme: const ColorScheme.light(
+          primary: Color(0xFF2563EB),
+          secondary: Color(0xFF7C3AED),
+          surface: Colors.white,
+          background: Color(0xFFF8FAFC),
+          error: Color(0xFFEF4444),
         ),
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF1E293B),
+          backgroundColor: Colors.white,
+          foregroundColor: Color(0xFF0F172A),
           elevation: 0,
           centerTitle: false,
         ),
+        fontFamily: 'Inter',
         useMaterial3: true,
       ),
       home: const LoginScreen(),

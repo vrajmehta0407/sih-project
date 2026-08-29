@@ -1,4 +1,4 @@
-import 'dart:io';
+﻿import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/api_service.dart';
@@ -12,217 +12,281 @@ class CameraScanScreen extends StatefulWidget {
   State<CameraScanScreen> createState() => _CameraScanScreenState();
 }
 
-class _CameraScanScreenState extends State<CameraScanScreen> {
-  File? _imageFile;
-  final _retailerController = TextEditingController(text: "City Supermarket Store #12");
-  final _stateController = TextEditingController(text: "Maharashtra");
-  final _districtController = TextEditingController(text: "Mumbai");
-  final _shelfPriceController = TextEditingController(text: "150.0");
+class _CameraScanScreenState extends State<CameraScanScreen> with SingleTickerProviderStateMixin {
+  File? _capturedImage;
   bool _isProcessing = false;
+  final ImagePicker _picker = ImagePicker();
+  late AnimationController _bracketController;
+
+  @override
+  void initState() {
+    super.initState();
+    _bracketController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _bracketController.dispose();
+    super.dispose();
+  }
 
   Future<void> _pickImage(ImageSource source) async {
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(source: source);
-    if (picked != null) {
-      setState(() {
-        _imageFile = File(picked.path);
-      });
+    try {
+      final XFile? photo = await _picker.pickImage(
+        source: source,
+        maxWidth: 1920,
+        maxHeight: 1080,
+        imageQuality: 90,
+      );
+
+      if (photo != null) {
+        setState(() {
+          _capturedImage = File(photo.path);
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error capturing image: $e")),
+      );
     }
   }
 
-  Future<void> _analyzeInspection() async {
-    if (_imageFile == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please snap or select a packaging label photo")),
-      );
-      return;
-    }
+  Future<void> _processImage() async {
+    if (_capturedImage == null) return;
 
     setState(() {
       _isProcessing = true;
     });
 
-    final shelfPrice = double.tryParse(_shelfPriceController.text);
-    final result = await ApiService.uploadInspection(
-      imageFile: _imageFile!,
-      retailerName: _retailerController.text.trim(),
-      state: _stateController.text.trim(),
-      district: _districtController.text.trim(),
-      shelfPrice: shelfPrice,
-    );
-
-    setState(() {
-      _isProcessing = false;
-    });
-
-    if (result != null && mounted) {
-      // Also cache to offline storage
-      await OfflineStorageService.saveDocket(OfflineDocket(
-        id: result['id'] ?? 'insp-${DateTime.now().millisecondsSinceEpoch}',
-        retailerName: _retailerController.text.trim(),
-        state: _stateController.text.trim(),
-        district: _districtController.text.trim(),
-        shelfPrice: shelfPrice ?? 0.0,
-        imagePath: _imageFile!.path,
-        createdAt: DateTime.now().toIso8601String(),
-        isSynced: true,
-      ));
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => InspectionResultScreen(
-            inspectionData: result,
-            imageFile: _imageFile!,
-          ),
-        ),
+    try {
+      final result = await ApiService.submitInspection(
+        imageFile: _capturedImage!,
+        district: "Mumbai Suburban",
+        state: "Maharashtra",
       );
+
+      setState(() {
+        _isProcessing = false;
+      });
+
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => InspectionResultScreen(
+              inspectionData: result,
+              imageFile: _capturedImage,
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      await OfflineStorageService.saveOfflineInspection(
+        _capturedImage!.path,
+        "Mumbai Suburban",
+        "Maharashtra",
+      );
+
+      setState(() {
+        _isProcessing = false;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Color(0xFFF59E0B),
+            content: Text("Backend offline: Inspection saved to local SQLite queue!"),
+          ),
+        );
+        Navigator.pop(context);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1E293B),
-        title: const Text("Rule 6 Label Scanner", style: TextStyle(color: Colors.white)),
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: const Text(
+          "Rule 6 Label Scanner",
+          style: TextStyle(color: Color(0xFF0F172A), fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF0F172A)),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Image Viewport Box
-            Container(
-              height: 240,
+      body: Column(
+        children: [
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFF334155), width: 2),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF0F172A).withOpacity(0.06),
+                    blurRadius: 20,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              child: _imageFile != null
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(14),
-                      child: Image.file(_imageFile!, fit: BoxFit.cover, width: double.infinity),
-                    )
-                  : Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.crop_free, size: 56, color: Color(0xFF10B981)),
-                        const SizedBox(height: 10),
-                        const Text(
-                          "Position Packaging Label Inside Frame",
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    if (_capturedImage != null)
+                      Image.file(_capturedImage!, fit: BoxFit.contain, width: double.infinity, height: double.infinity)
+                    else
+                      Container(
+                        color: const Color(0xFFF1F5F9),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(0xFF2563EB).withOpacity(0.15),
+                                      blurRadius: 16,
+                                    ),
+                                  ],
+                                ),
+                                child: const Icon(Icons.document_scanner, size: 48, color: Color(0xFF2563EB)),
+                              ),
+                              const SizedBox(height: 16),
+                              const Text(
+                                "Align Package Label Inside Guide",
+                                style: TextStyle(color: Color(0xFF0F172A), fontSize: 15, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 4),
+                              const Text(
+                                "Auto-deskew ±45° • Anti-glare inpainting",
+                                style: TextStyle(color: Color(0xFF64748B), fontSize: 12),
+                              ),
+                            ],
+                          ),
                         ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          "Ensure MRP, Net Qty & Mfg Details are visible",
-                          style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ElevatedButton.icon(
-                              onPressed: () => _pickImage(ImageSource.camera),
-                              icon: const Icon(Icons.camera_alt, size: 16),
-                              label: const Text("Camera"),
-                              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981)),
+                      ),
+
+                    // Animated Reticle / Corner Brackets
+                    AnimatedBuilder(
+                      animation: _bracketController,
+                      builder: (context, child) {
+                        return Container(
+                          margin: const EdgeInsets.all(32),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: const Color(0xFF2563EB).withOpacity(0.4 + (_bracketController.value * 0.4)),
+                              width: 2.5,
                             ),
-                            const SizedBox(width: 12),
-                            OutlinedButton.icon(
-                              onPressed: () => _pickImage(ImageSource.gallery),
-                              icon: const Icon(Icons.photo_library, size: 16, color: Colors.white),
-                              label: const Text("Gallery", style: TextStyle(color: Colors.white)),
-                            ),
-                          ],
-                        ),
-                      ],
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        );
+                      },
                     ),
-            ),
-            const SizedBox(height: 20),
 
-            // Metadata Form
-            const Text(
-              "Field Audit Parameters",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
-            ),
-            const SizedBox(height: 10),
-
-            TextField(
-              controller: _retailerController,
-              style: const TextStyle(color: Colors.white),
-              decoration: _inputDeco("Retailer / Establishment Name", Icons.storefront),
-            ),
-            const SizedBox(height: 12),
-
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _stateController,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: _inputDeco("State", Icons.map_outlined),
-                  ),
+                    if (_isProcessing)
+                      Container(
+                        color: Colors.white.withOpacity(0.92),
+                        child: const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 44,
+                                height: 44,
+                                child: CircularProgressIndicator(strokeWidth: 3, color: Color(0xFF2563EB)),
+                              ),
+                              SizedBox(height: 20),
+                              Text(
+                                "Dual-OCR Consensus Active...",
+                                style: TextStyle(color: Color(0xFF0F172A), fontSize: 15, fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                "Extracting Rule 6 Declarations & Recidivism",
+                                style: TextStyle(color: Color(0xFF64748B), fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: TextField(
-                    controller: _districtController,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: _inputDeco("District", Icons.location_city),
-                  ),
+              ),
+            ),
+          ),
+
+          // Action Controls
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0x0A000000),
+                  blurRadius: 10,
+                  offset: Offset(0, -4),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-
-            TextField(
-              controller: _shelfPriceController,
-              keyboardType: TextInputType.number,
-              style: const TextStyle(color: Colors.white),
-              decoration: _inputDeco("Actual Shelf Price Charged (₹)", Icons.currency_rupee),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.photo_library_outlined, color: Color(0xFF64748B), size: 28),
+                  onPressed: () => _pickImage(ImageSource.gallery),
+                ),
+                GestureDetector(
+                  onTap: () => _pickImage(ImageSource.camera),
+                  child: Container(
+                    width: 68,
+                    height: 68,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF2563EB), Color(0xFF7C3AED)],
+                      ),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF2563EB).withOpacity(0.4),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(Icons.camera_alt, color: Colors.white, size: 30),
+                  ),
+                ),
+                if (_capturedImage != null && !_isProcessing)
+                  IconButton(
+                    icon: const Icon(Icons.send_rounded, color: Color(0xFF10B981), size: 30),
+                    onPressed: _processImage,
+                  )
+                else
+                  const SizedBox(width: 48),
+              ],
             ),
-            const SizedBox(height: 24),
-
-            ElevatedButton.icon(
-              onPressed: _isProcessing ? null : _analyzeInspection,
-              icon: _isProcessing
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                    )
-                  : const Icon(Icons.analytics_outlined),
-              label: Text(
-                _isProcessing ? "RUNNING DUAL OCR & RULE 6 AUDIT..." : "ANALYZE COMPLIANCE NOW",
-                style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF10B981),
-                foregroundColor: const Color(0xFF0F172A),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  InputDecoration _inputDeco(String label, IconData icon) {
-    return InputDecoration(
-      labelText: label,
-      labelStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
-      prefixIcon: Icon(icon, color: const Color(0xFF10B981), size: 20),
-      filled: true,
-      fillColor: const Color(0xFF1E293B),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide.none,
+          ),
+        ],
       ),
     );
   }

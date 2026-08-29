@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../services/offline_storage_service.dart';
 
 class OfflineQueueScreen extends StatefulWidget {
@@ -9,24 +9,19 @@ class OfflineQueueScreen extends StatefulWidget {
 }
 
 class _OfflineQueueScreenState extends State<OfflineQueueScreen> {
-  List<OfflineDocket> _dockets = [];
-  bool _isLoading = true;
+  List<Map<String, dynamic>> _queue = [];
   bool _isSyncing = false;
 
   @override
   void initState() {
     super.initState();
-    _loadDockets();
+    _loadQueue();
   }
 
-  Future<void> _loadDockets() async {
+  Future<void> _loadQueue() async {
+    final list = await OfflineStorageService.getPendingInspections();
     setState(() {
-      _isLoading = true;
-    });
-    final list = await OfflineStorageService.getQueuedDockets();
-    setState(() {
-      _dockets = list;
-      _isLoading = false;
+      _queue = list;
     });
   }
 
@@ -35,11 +30,8 @@ class _OfflineQueueScreenState extends State<OfflineQueueScreen> {
       _isSyncing = true;
     });
 
-    // Simulate bulk network upload
-    await Future.delayed(const Duration(seconds: 2));
-
-    await OfflineStorageService.clearSyncedDockets();
-    await _loadDockets();
+    final syncedCount = await OfflineStorageService.syncAllPending();
+    await _loadQueue();
 
     setState(() {
       _isSyncing = false;
@@ -47,9 +39,9 @@ class _OfflineQueueScreenState extends State<OfflineQueueScreen> {
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("All offline dockets synchronized with Central Legal Metrology Registry."),
-          backgroundColor: Color(0xFF10B981),
+        SnackBar(
+          backgroundColor: const Color(0xFF10B981),
+          content: Text("Sync Complete: $syncedCount dockets submitted to national registry!"),
         ),
       );
     }
@@ -58,108 +50,119 @@ class _OfflineQueueScreenState extends State<OfflineQueueScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1E293B),
-        title: const Text("Offline Docket Queue", style: TextStyle(color: Colors.white)),
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: const Text(
+          "Offline SQLite Queue",
+          style: TextStyle(color: Color(0xFF0F172A), fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF0F172A)),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF10B981)))
-          : _dockets.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.cloud_done_outlined, size: 64, color: Colors.green[400]),
-                      const SizedBox(height: 14),
-                      const Text(
-                        "All Dockets Synchronized",
-                        style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 6),
-                      const Text(
-                        "No pending offline inspections on this device.",
-                        style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+      body: _queue.isEmpty
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF6FF),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.cloud_done_rounded, size: 54, color: Color(0xFF2563EB)),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    "All Local Dockets Synced",
+                    style: TextStyle(color: Color(0xFF0F172A), fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    "Zero pending items in local device storage.",
+                    style: TextStyle(color: Color(0xFF64748B), fontSize: 12),
+                  ),
+                ],
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: _queue.length,
+              itemBuilder: (context, index) {
+                final item = _queue[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF0F172A).withOpacity(0.04),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _dockets.length,
-                  itemBuilder: (context, index) {
-                    final docket = _dockets[index];
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1E293B),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFF334155)),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFFBEB),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.pending_actions, color: Color(0xFFF59E0B)),
                       ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF0284C7).withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(8),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item['district'] ?? "Offline Inspection",
+                              style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 13),
                             ),
-                            child: const Icon(Icons.receipt_long, color: Color(0xFF38BDF8), size: 24),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  docket.retailerName,
-                                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  "${docket.district}, ${docket.state} • ₹${docket.shelfPrice}",
-                                  style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
-                                ),
-                              ],
+                            const SizedBox(height: 2),
+                            Text(
+                              item['created_at'] ?? "Pending sync",
+                              style: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
                             ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF10B981).withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: const Text(
-                              "QUEUED",
-                              style: TextStyle(color: Color(0xFF10B981), fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    );
-                  },
-                ),
-      bottomNavigationBar: _dockets.isNotEmpty
-          ? Container(
+                      const Icon(Icons.chevron_right, color: Color(0xFF94A3B8)),
+                    ],
+                  ),
+                );
+              },
+            ),
+      bottomNavigationBar: _queue.isEmpty
+          ? null
+          : Container(
               padding: const EdgeInsets.all(16),
-              color: const Color(0xFF1E293B),
-              child: ElevatedButton.icon(
-                onPressed: _isSyncing ? null : _syncAll,
-                icon: _isSyncing
-                    ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : const Icon(Icons.cloud_upload),
-                label: Text(_isSyncing ? "SYNCING TO HEADQUARTERS..." : "SYNC ALL DOCKETS NOW"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF10B981),
-                  foregroundColor: const Color(0xFF0F172A),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                boxShadow: [BoxShadow(color: Color(0x0A000000), blurRadius: 8, offset: Offset(0, -2))],
               ),
-            )
-          : null,
+              child: ElevatedButton(
+                onPressed: _isSyncing ? null : _syncAll,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2563EB),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+                child: _isSyncing
+                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Text("BATCH SYNC TO NATIONAL REGISTRY", style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+            ),
     );
   }
 }
