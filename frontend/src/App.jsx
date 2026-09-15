@@ -11,6 +11,15 @@ import { InspectionDetailPage } from './pages/InspectionDetailPage';
 import { VerifyQRPage } from './pages/VerifyQRPage';
 import { RulesPage } from './pages/RulesPage';
 import { AuditLogsPage } from './pages/AuditLogsPage';
+import { NotificationCenterPage } from './pages/NotificationCenterPage';
+import { SettingsPage } from './pages/SettingsPage';
+import { ReportingHubPage } from './pages/ReportingHubPage';
+import { PrivacyCenterPage } from './pages/PrivacyCenterPage';
+import { GamificationPage } from './pages/GamificationPage';
+import { CSATPage } from './pages/CSATPage';
+import { VoiceReportPage } from './pages/VoiceReportPage';
+import { AnchoringPage } from './pages/AnchoringPage';
+import { AdminPage } from './pages/AdminPage';
 import PresentationPage from './pages/PresentationPage';
 import InspectionMapPage from './pages/InspectionMapPage';
 import CitizenPortalPage from './pages/CitizenPortalPage';
@@ -62,7 +71,7 @@ function AppRoutes() {
       <Route path="/grand-finale-simulator" element={<GrandFinalePage />} />
 
       {/* Protected routes inside Layout */}
-      <Route
+<Route
         element={
           <ProtectedRoute>
             <Layout />
@@ -85,6 +94,17 @@ function AppRoutes() {
         <Route path="/deceptive-packaging" element={<DeceptivePackagingPage />} />
         <Route path="/brand-trust-seal" element={<BrandTrustSealPage />} />
         <Route path="/public-apis" element={<PublicApisHubPage />} />
+
+        {/* V4 Regulatory Command Center */}
+        <Route path="/notifications" element={<NotificationCenterPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/reporting" element={<ReportingHubPage />} />
+        <Route path="/privacy" element={<PrivacyCenterPage />} />
+        <Route path="/gamification" element={<GamificationPage />} />
+        <Route path="/csat" element={<CSATPage />} />
+        <Route path="/voice-report" element={<VoiceReportPage />} />
+        <Route path="/anchoring" element={<AnchoringPage />} />
+        <Route path="/admin" element={<AdminPage />} />
       </Route>
 
       {/* Fallback */}

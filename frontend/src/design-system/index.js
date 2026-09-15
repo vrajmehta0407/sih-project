@@ -13,3 +13,4 @@ export { ButtonLoader } from './ButtonLoader';
 export { PipelineLoader } from './PipelineLoader';
 export { RoleSelectCard } from './RoleSelectCard';
 export { WelcomeInterstitial } from './WelcomeInterstitial';
+export { ThreePackageViewer } from './ThreePackageViewer';

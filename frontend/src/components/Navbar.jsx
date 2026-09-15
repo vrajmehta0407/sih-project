@@ -26,6 +26,10 @@ import {
   Menu,
   X,
   Sparkles,
+  Shield,
+  BarChart3,
+  Settings,
+  Mic,
 } from 'lucide-react';
 
 export const Navbar = () => {
@@ -40,14 +44,20 @@ export const Navbar = () => {
     navigate('/login');
   };
 
-  const primaryNav = [
+const primaryNav = [
     { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/inspections', label: 'Inspections', icon: ClipboardList },
     { to: '/predictive-dispatch', label: 'AI Dispatch', icon: Radar },
     { to: '/map', label: 'GIS Heatmap', icon: MapPin },
+    { to: '/notifications', label: 'Notifications', icon: Shield },
+    { to: '/settings', label: 'Settings', icon: Settings },
+    { to: '/gamification', label: 'Gamification', icon: Trophy },
+    { to: '/csat', label: 'CSAT Surveys', icon: BarChart3 },
+    { to: '/voice-report', label: 'Voice Report', icon: Mic },
+    { to: '/anchoring', label: 'Anchoring', icon: Mic },
   ];
 
-  const labLinks = [
+const labLinks = [
     { to: '/regulatory-copilot', label: 'AI Copilot', icon: Cpu },
     { to: '/ecommerce-crawler', label: 'E-Com Crawler', icon: Globe },
     { to: '/deceptive-packaging', label: 'Slack-Fill Lab', icon: Box },
@@ -61,6 +71,9 @@ export const Navbar = () => {
     { to: '/rules', label: 'Rules & Gazette', icon: BookOpen },
     { to: '/public-apis', label: 'Public APIs Hub', icon: Globe },
     { to: '/audit-logs', label: 'Audit Trail', icon: History },
+    { to: '/privacy', label: 'Privacy Center', icon: Shield },
+    { to: '/gamification', label: 'Gamification', icon: Trophy },
+    { to: '/reporting', label: 'Reporting', icon: BarChart3 },
   ];
 
   return (
@@ -181,7 +194,7 @@ export const Navbar = () => {
               <span className="hidden sm:inline">New Inspection</span>
             </Link>
 
-            {/* Officer Profile Badge */}
+{/* Officer Profile Badge */}
             {user ? (
               <div className="flex items-center space-x-3 pl-3 border-l border-slate-200">
                 <div className="text-right hidden sm:block">
@@ -209,6 +222,17 @@ export const Navbar = () => {
                 Officer Login
               </Link>
             )}
+
+            {/* Language Selector */}
+            <div className="hidden sm:flex items-center space-x-2 px-3 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 transition-colors">
+              <select
+                onChange={(e) => navigate(`/i18n/translations/${e.target.value}`)}
+                className="rounded-xl px-2 py-1.5 text-sm font-medium text-slate-600 border border-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+              >
+                <option value="en">EN</option>
+                <option value="hi">HI</option>
+              </select>
+            </div>
 
             {/* Mobile Menu Button */}
             <button

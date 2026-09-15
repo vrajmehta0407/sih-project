@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -25,8 +25,10 @@ import {
   Compass,
   FileText,
   Zap,
+  Box,
+  Radio,
 } from 'lucide-react';
-import { GlassCard, AnimatedCounter, StatusBadge, StaggeredList, StaggeredItem, RoleSelectCard } from '../design-system';
+import { GlassCard, AnimatedCounter, StatusBadge, StaggeredList, StaggeredItem, RoleSelectCard, ThreePackageViewer } from '../design-system';
 
 export const LandingPage = () => {
   const navigate = useNavigate();
@@ -341,6 +343,26 @@ export const LandingPage = () => {
             </p>
             <p className="text-[11px] text-slate-500 mt-1">BSA 2023 §63 Cryptographic Proof</p>
           </GlassCard>
+        </div>
+      </section>
+
+      {/* 3D Spatial Packaging Inspection Lab */}
+      <section id="3d-sandbox" className="max-w-7xl mx-auto px-4 py-16 relative">
+        <div className="text-center max-w-3xl mx-auto mb-10">
+          <span className="inline-flex items-center space-x-1.5 px-3.5 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border border-blue-200/80 mb-3 shadow-sm">
+            <Box className="h-3.5 w-3.5 text-blue-600" />
+            <span>Interactive 3D Spatial Packaging Lab</span>
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold font-display text-slate-900 tracking-tight">
+            Rotate & Inspect Packaging in 3D Space
+          </h2>
+          <p className="text-slate-600 text-sm sm:text-base mt-2">
+            Click & drag to rotate the 3D package in 360°. Toggle Photometric, X-Ray, Slack-Fill Volumetrics, and ELA forensic scan shaders in real-time.
+          </p>
+        </div>
+
+        <div className="max-w-4xl mx-auto rounded-3xl border border-slate-200/80 bg-slate-900 shadow-2xl p-6 relative overflow-hidden">
+          <ThreePackageViewer mode="normal" fillPercentage={68} />
         </div>
       </section>
 
